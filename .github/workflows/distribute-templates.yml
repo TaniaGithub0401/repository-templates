@@ -5,7 +5,20 @@ on:
   push:
     branches:
       - prototype-multi-gitter-templates
+
   workflow_dispatch:
+    inputs:
+      repositories:
+        description: "Repositories (owner/repo, separated by spaces)"
+        required: true
+        default: "TaniaGithub0401/actinia-core"
+        type: string
+
+      apply:
+        description: "Create or update pull requests"
+        required: true
+        default: false
+        type: boolean
 
 jobs:
   distribute-templates:
@@ -25,18 +38,14 @@ jobs:
       - name: Distribute templates
         env:
           GITHUB_TOKEN: ${{ secrets.MULTI_GITTER_TOKEN }}
-          TEMPLATES_DIR: ${{ github.workspace }}/templates
-          CONFIG_PATH: ${{ github.workspace }}/config/templates.yml
+          REPOSITORIES: ${{ inputs.repositories || 'TaniaGithub0401/actinia-core' }}
+          APPLY_CHANGES: ${{ github.event_name == 'workflow_dispatch' && inputs.apply && 'true' || 'false' }}
+
         run: |
-          multi-gitter run "python3 $GITHUB_WORKSPACE/scripts/sync_templates.py" \
-            -R TaniaGithub0401/actinia-core \
-            --base-branch main \
-            --git-type cmd \
-            --dry-run \
-            -m "Synchronize repository templates" \
-            --pr-title "Synchronize shared repository templates" \
-            --pr-body "Synchronize shared files from the central template repository." \
-            -B sync-repository-templates \
-            --author-name "github-actions[bot]" \
-            --author-email "41898282+github-actions[bot]@users.noreply.github.com" \
-            --log-level=debug
+          read -r -a REPO_ARGS <<< "$REPOSITORIES"
+
+          if [[ "$APPLY_CHANGES" == "true" ]]; then
+            ./scripts/run_sync.sh --apply "${REPO_ARGS[@]}"
+          else
+            ./scripts/run_sync.sh --dry-run "${REPO_ARGS[@]}"
+          fi
