@@ -1,0 +1,51 @@
+
+name: Distribute repository templates
+
+on:
+  push:
+    branches:
+      - prototype-multi-gitter-templates
+
+  workflow_dispatch:
+    inputs:
+      repositories:
+        description: "Repositories (owner/repo, separated by spaces)"
+        required: true
+        default: "TaniaGithub0401/actinia-core"
+        type: string
+
+      apply:
+        description: "Create or update pull requests"
+        required: true
+        default: false
+        type: boolean
+
+jobs:
+  distribute-templates:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout template repository
+        uses: actions/checkout@v4
+
+      - name: Install Multi-Gitter
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/lindell/multi-gitter/master/install.sh | sh
+
+      - name: Install Python dependencies
+        run: python3 -m pip install PyYAML
+
+      - name: Distribute templates
+        env:
+          GITHUB_TOKEN: ${{ secrets.MULTI_GITTER_TOKEN }}
+          REPOSITORIES: ${{ inputs.repositories || 'TaniaGithub0401/actinia-core' }}
+          APPLY_CHANGES: ${{ github.event_name == 'workflow_dispatch' && inputs.apply && 'true' || 'false' }}
+
+        run: |
+          read -r -a REPO_ARGS <<< "$REPOSITORIES"
+
+          if [[ "$APPLY_CHANGES" == "true" ]]; then
+            ./scripts/run_sync.sh --apply "${REPO_ARGS[@]}"
+          else
+            ./scripts/run_sync.sh --dry-run "${REPO_ARGS[@]}"
+          fi
