@@ -19,19 +19,24 @@ jobs:
         run: |
           curl -fsSL https://raw.githubusercontent.com/lindell/multi-gitter/master/install.sh | sh
 
+      - name: Install Python dependencies
+        run: python3 -m pip install PyYAML
+
       - name: Distribute templates
         env:
           GITHUB_TOKEN: ${{ secrets.MULTI_GITTER_TOKEN }}
           TEMPLATES_DIR: ${{ github.workspace }}/templates
+          CONFIG_PATH: ${{ github.workspace }}/config/templates.yml
         run: |
           multi-gitter run "python3 $GITHUB_WORKSPACE/scripts/sync_templates.py" \
             -R TaniaGithub0401/actinia-core \
             --base-branch main \
             --git-type cmd \
+            --dry-run \
             -m "Synchronize repository templates" \
             --pr-title "Synchronize shared repository templates" \
             --pr-body "Synchronize shared files from the central template repository." \
-            -B sync-repository-templates-v2 \
+            -B sync-repository-templates \
             --author-name "github-actions[bot]" \
             --author-email "41898282+github-actions[bot]@users.noreply.github.com" \
             --log-level=debug

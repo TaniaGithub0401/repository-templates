@@ -1,0 +1,12 @@
+
+groups:
+  common:
+    files:
+      - source: common/SECURITY.md
+        destination: SECURITY.md
+
+targets:
+  - repositories:
+      - TaniaGithub0401/actinia-core
+    groups:
+      - common
