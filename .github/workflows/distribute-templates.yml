@@ -28,7 +28,6 @@ jobs:
             -R TaniaGithub0401/actinia-core \
             --base-branch main \
             --git-type cmd \
-            --dry-run \
             -m "Synchronize repository templates" \
             --pr-title "Synchronize shared repository templates" \
             --pr-body "Synchronize shared files from the central template repository." \
