@@ -31,7 +31,7 @@ jobs:
             -m "Synchronize repository templates" \
             --pr-title "Synchronize shared repository templates" \
             --pr-body "Synchronize shared files from the central template repository." \
-            -B sync-repository-templates \
+            -B sync-repository-templates-v2 \
             --author-name "github-actions[bot]" \
             --author-email "41898282+github-actions[bot]@users.noreply.github.com" \
             --log-level=debug
